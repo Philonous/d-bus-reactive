@@ -1,0 +1,24 @@
+name:                d-bus-reactive
+version:             0.0.0
+synopsis:            reactive interface for d-bus
+description:         reactive interface for d-bus
+license:             BSD3
+license-file:        LICENSE
+author:              Philipp Balzarek
+maintainer:          p.balzarek@googlemail.com
+copyright:           2014 Philipp Balzarek
+category:            Network
+build-type:          Simple
+cabal-version:       >=1.8
+
+library
+  hs-source-dirs:    src/
+  ghc-options:       -Wall -O2
+  exposed-modules:   DBus.Reactive
+  build-depends:     base >= 4 && <5
+                   , d-bus >= 0.1.3
+                   , hslogger >= 1.2.4
+                   , mtl >= 2.2.1
+                   , sodium >= 0.10
+                   , stm >= 2.4.3
+                   , text >= 1.2.0.0
