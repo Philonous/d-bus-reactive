@@ -15,6 +15,9 @@ import           System.Log.Logger
 logError :: String -> IO ()
 logError = errorM "DBus.Reactive"
 
+logDebug :: String -> IO ()
+logDebug = debugM "DBus.Reactive"
+
 
 -- | Handle incoming signals as events
 signalEvent :: Representable a =>
@@ -46,14 +49,19 @@ behaviourToProperty path iface name (b :: Behaviour a) con = do
 -- | Track a remote property as a behaviour
 --
 -- @throws: MsgError
-propertyBehaviour :: Representable a =>
-                     RemoteProperty (RepType a)
-                  -> DBusConnection
-                  -> IO (Behaviour a)
-propertyBehaviour rprop con = do
+propertyBehaviour' :: Representable a =>
+                     Maybe a
+                   ->  RemoteProperty (RepType a)
+                   -> DBusConnection
+                   -> IO (Behaviour a)
+propertyBehaviour' def rprop con = do
     mbInit <- getProperty rprop con
     i <- case mbInit of
-        Left e -> Ex.throwIO e
+        Left e -> case def of
+                   Nothing -> Ex.throwIO e
+                   Just v -> do
+                       logError $ "Error getting initial value" ++ show e
+                       return v
         Right r -> return r
     (changeEvent, push) <- sync $ newEvent
     handlePropertyChanged rprop (handleP push) con
@@ -64,7 +72,15 @@ propertyBehaviour rprop con = do
         case mbP of
          Left _e -> logError "could not get remote property"
          Right v -> sync $ push v
-    handleP push (Just v ) = sync $ push v
+    handleP push (Just v ) = do
+        logDebug $ "property changed: " ++ show rprop
+        sync $ push v
+
+propertyBehaviour :: Representable a =>
+                     RemoteProperty (RepType a)
+                  -> DBusConnection
+                  -> IO (Behaviour a)
+propertyBehaviour = propertyBehaviour' Nothing
 
 eventMethod :: ( Representable args
                , Representable res) =>
