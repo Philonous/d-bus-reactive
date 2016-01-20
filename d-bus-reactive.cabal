@@ -19,6 +19,6 @@ library
                    , d-bus >= 0.1.3
                    , hslogger >= 1.2.4
                    , mtl >= 2.2.1
-                   , sodium >= 0.10
+                   , reactive-banana >= 1.1
                    , stm >= 2.4.3
                    , text >= 1.2.0.0
